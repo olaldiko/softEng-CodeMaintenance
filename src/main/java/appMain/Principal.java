@@ -1,4 +1,4 @@
-package main;
+package appMain;
 
 import java.util.concurrent.Semaphore;
 
