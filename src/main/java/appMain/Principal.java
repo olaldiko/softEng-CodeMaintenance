@@ -18,10 +18,10 @@ import utils.ConfigFile;
  */
 public class Principal {
 	
-	private Resource r;
-	private Dispatcher d;
+	private Resource resource;
+	private Dispatcher dispatcher;
 	
-	private OptionsUI initUI;
+	private OptionsUI optionsUI;
 		
 	private void start() {
 		initConfiUI();
@@ -34,8 +34,8 @@ public class Principal {
 	 */
 	private void initConfiUI() {
 		Semaphore stop =  new Semaphore(0);
-		initUI = new OptionsUI(stop);
-		initUI.start();
+		optionsUI = new OptionsUI(stop);
+		optionsUI.start();
 		try {
 			stop.acquire();
 		} catch (InterruptedException e) {}
@@ -45,23 +45,25 @@ public class Principal {
 	 * Dispatcher starts the whole system of socket communications.
 	 */
 	private void initDispatcher() {
-		d = new Dispatcher();
-		d.start();
+		dispatcher = new Dispatcher();
+		dispatcher.start();
 	}
 	
 	/**
 	 * Creates the Resource object with the Dispatcher.
 	 */
 	private void initResource() {
-		r = new Resource(d);
-		r.start();
+		resource = new Resource(dispatcher);
+		resource.start();
 	}
 	
 	public static void main(String args[]) {
 		System.out.println("PRINCIPAL: Inicio del programa.");
 		// Read the file if exists.
 		ConfigFile file = new ConfigFile();
-		if (file.check()) file.readAll();
+		if (file.check()) {
+			file.readAll();
+		}
 		// Start the program.
 		Principal p = new Principal();
 		p.start();
