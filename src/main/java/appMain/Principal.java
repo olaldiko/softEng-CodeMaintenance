@@ -2,9 +2,11 @@ package appMain;
 
 import data.Resource;
 import frontend.OptionsUI;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
 import socket.Dispatcher;
 import utils.ConfigFile;
-
 import java.util.concurrent.Semaphore;
 
 /**
@@ -22,8 +24,11 @@ public class Principal {
 
     private OptionsUI optionsUI;
 
+    static Logger log = LogManager.getRootLogger();
+
     public static void main(String args[]) {
-        System.out.println("PRINCIPAL: Inicio del programa.");
+
+        log.info("PRINCIPAL: Inicio del programa.");
         // Read the file if exists.
         ConfigFile file = new ConfigFile();
         if (file.check()) {
@@ -32,7 +37,7 @@ public class Principal {
         // Start the program.
         Principal p = new Principal();
         p.start();
-        System.out.println("PRINCIPAL: Fin del hilo principal del programa.");
+        log.info("PRINCIPAL: Fin del hilo principal del programa.");
     }
 
     private void start() {
@@ -51,6 +56,7 @@ public class Principal {
         try {
             stop.acquire();
         } catch (InterruptedException e) {
+            log.error("initConfUI interrumpted", e);
         }
     }
 
@@ -60,6 +66,7 @@ public class Principal {
     private void initDispatcher() {
         dispatcher = new Dispatcher();
         dispatcher.start();
+        log.info("Dispatcher started");
     }
 
     /**
