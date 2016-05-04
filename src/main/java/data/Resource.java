@@ -9,7 +9,7 @@ import simulation.Simulation;
 import socket.Buzon;
 import socket.Dispatcher;
 import socket.Message;
-import socket.Multicast;
+import socket.MulticastManager;
 import tasks.SenderRunnable;
 import utils.ConfigFile;
 
@@ -24,24 +24,24 @@ import utils.ConfigFile;
  */
 public class Resource extends Thread {
 
-	private MainUI ui;
-	private Dispatcher d;
+	private MainUI mainUI;
+	private Dispatcher dispatcher;
 	
 	private Buzon<String> simuBuzon;
 	
-	private Simulation simu;
+	private Simulation simulation;
 	
 	private ScheduledExecutorService scheduler;
 	
-	private Multicast m;
+	private MulticastManager multicastManager;
 	
-	private boolean stop = false;
+	private volatile boolean stop = false;
 	
-	public Resource(Dispatcher d) {
-		this.d = d;
+	public Resource(Dispatcher dispatcher) {
+		this.dispatcher = dispatcher;
 		init();
-		ui = new MainUI();
-		ui.start();
+		mainUI = new MainUI();
+		mainUI.start();
 		simuBuzon = new Buzon<>(1000);
 		prepareSimulator();
 		initSimulator();
@@ -54,46 +54,63 @@ public class Resource extends Thread {
 	 */
 	@Override
 	public void run() {
-		ui.setURL(Definitions.socketAddres);
-		ui.setSocket(Definitions.socketNumber);
-		ui.setLocation(Definitions.lat, Definitions.lng);
-		ui.setEstado(Definitions.estado);
-		ui.setID(Definitions.id);
-		createTasks();
+        initThread();
 		while (!stop) {
-			Message msg = d.receive();
+			Message msg = dispatcher.receive();
 			switch (msg.getType()) {
-				case "ALERT": ui.addAlertText(msg.getData());
-					break;
-				case "ROUTE": if (simu != null) {
-						if (simu.getDriving()) {
-							ui.reload();
-							killSimulator();
-							prepareSimulator();
-							initSimulator();
-						}
-					}
-					try {
-						simuBuzon.send(msg.getData());
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				case "IDASSIGN": setID(msg.getID());
-					break;
-				case "JOIN": Definitions.multicastGroup = msg.getData();
-					if (m != null) {
-						if (m.isAlive()) {
-							m.close();
-						}
-					}
-					m = new Multicast(d.getParserBuzon());
-					m.start();
-					break;
-				default: break;
+				case "ALERT":       treatAlertMessage(msg);     break;
+				case "ROUTE":       treatRouteMesasge(msg);     break;
+				case "IDASSIGN":    treatIDAssignMessage(msg);  break;
+				case "JOIN":        treatJoinMessage(msg);      break;
+				default:                                        break;
 			}
 		}
 	}
-	
+
+    private void initThread() {
+        mainUI.setURL(Definitions.socketAddres);
+        mainUI.setSocket(Definitions.socketNumber);
+        mainUI.setLocation(Definitions.latitude, Definitions.longitude);
+        mainUI.setEstado(Definitions.estado);
+        mainUI.setID(Definitions.id);
+        createTasks();
+    }
+
+    private void treatAlertMessage(Message msg) {
+        mainUI.addAlertText(msg.getData());
+    }
+
+    private void treatRouteMesasge(Message msg) {
+        if (simulation != null) {
+            if (simulation.getDriving()) {
+                mainUI.reload();
+                killSimulator();
+                prepareSimulator();
+                initSimulator();
+            }
+        }
+        try {
+            simuBuzon.send(msg.getData());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void treatIDAssignMessage(Message msg) {
+        setID(msg.getID());
+    }
+
+    private void treatJoinMessage(Message msg) {
+        Definitions.multicastGroup = msg.getData();
+        if (multicastManager != null) {
+            if (multicastManager.isAlive()) {
+                multicastManager.close();
+            }
+        }
+        multicastManager = new MulticastManager(dispatcher.getParserBuzon());
+        multicastManager.start();
+    }
+
 	/**
 	 * This method initialize the resource asking for an ID to the server. If the ID is storaged in the configuration file,
 	 * then restores it and set's the resource of the state to 0 if it was waiting or moving to an incident or; if it was
@@ -101,9 +118,9 @@ public class Resource extends Thread {
 	 */
 	private void init() {
 		if (Definitions.id == -1) {
-			d.send(Definitions.id, "IDREQUEST", " ");
-			setID(d.receive("IDASSIGN").getID());
-		} d.send(Definitions.id, "CONNECTED", " ");
+			dispatcher.send(Definitions.id, "IDREQUEST", " ");
+			setID(dispatcher.receive("IDASSIGN").getID());
+		} dispatcher.send(Definitions.id, "CONNECTED", " ");
 		if (Definitions.estado == 2) {
 			setEstado(2);
 		} else if (Definitions.estado == 1) {
@@ -116,7 +133,7 @@ public class Resource extends Thread {
 	}
 	
 	private void setID(int id) {
-		if (ui != null) ui.setID(id);
+		if (mainUI != null) mainUI.setID(id);
 		Definitions.id = id;
 		rewrite();
 	}
@@ -126,28 +143,28 @@ public class Resource extends Thread {
 	}
 
 	public void setEstado(int estado) {
-		if (ui != null) ui.setEstado(estado);
+		if (mainUI != null) mainUI.setEstado(estado);
 		Definitions.estado = estado;
-		d.send(Definitions.id, "ESTADO", estado);
+		dispatcher.send(Definitions.id, "ESTADO", estado);
 		rewrite();
 	}
 	
-	public double getLat() {
-		return Definitions.lat;
+	public double getLatitude() {
+		return Definitions.latitude;
 	}
 	
-	public double getLng() {
-		return Definitions.lng;
+	public double getLongitude() {
+		return Definitions.longitude;
 	}
 	
 	public String getLocation() {
-		return getLat()+","+getLng();
+		return getLatitude()+","+ getLongitude();
 	}
 	
-	public void setLocation(double lat, double lng) {
-		Definitions.lat = lat;
-		Definitions.lng = lng;
-		ui.setLocation(lat, lng);
+	public void setLocation(double latitude, double longitude) {
+		Definitions.latitude = latitude;
+		Definitions.longitude = longitude;
+		mainUI.setLocation(latitude, longitude);
 		rewrite();
 	}
 
@@ -155,20 +172,21 @@ public class Resource extends Thread {
 	 * This methods creates a periodical runnable method to send specific data to the server periodically.
 	 */
 	private void createTasks() {
+        SenderRunnable scheduledTask = new SenderRunnable(this, dispatcher, "LOCATION");
 		scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleAtFixedRate(new SenderRunnable(this, d, "LOCATION"), 0, 10, TimeUnit.SECONDS);
+		scheduler.scheduleAtFixedRate(scheduledTask, 0, 10, TimeUnit.SECONDS);
 	}
 	
 	private void prepareSimulator() {
-		simu = new Simulation(ui, simuBuzon, this);
+		simulation = new Simulation(mainUI, simuBuzon, this);
 	}
 	
 	private void initSimulator() {
-		simu.start();
+		simulation.start();
 	}
 	
 	private void killSimulator() {
-		simu.kill();
+		simulation.kill();
 	}
 	
 	/**

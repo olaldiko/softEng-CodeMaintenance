@@ -42,9 +42,9 @@ public class ConfigFile {
 			bufferedWriter.newLine();
 			bufferedWriter.write("ESTADO="+Definitions.estado);
 			bufferedWriter.newLine();
-			bufferedWriter.write("LAT="+Definitions.lat);
+			bufferedWriter.write("LAT="+Definitions.latitude);
 			bufferedWriter.newLine();
-			bufferedWriter.write("LNG="+Definitions.lng);
+			bufferedWriter.write("LNG="+Definitions.longitude);
 			bufferedWriter.newLine();
 			bufferedWriter.close();
 		} catch (IOException e) {
@@ -74,9 +74,9 @@ public class ConfigFile {
 						break;
 					case "ESTADO": Definitions.estado = Integer.parseInt(data[1]); 
 						break;
-					case "LAT": Definitions.lat = Double.parseDouble(data[1]); 
+					case "LAT": Definitions.latitude = Double.parseDouble(data[1]);
 						break;
-					case "LNG": Definitions.lng = Double.parseDouble(data[1]); 
+					case "LNG": Definitions.longitude = Double.parseDouble(data[1]);
 						break;
 					default: break;
 				}

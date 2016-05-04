@@ -77,7 +77,7 @@ public class MainUI extends Thread {
 		resetNav();
 		addNavText("Esperando ruta...");
 		loadURL();
-		updateMap(Definitions.lat, Definitions.lng);
+		updateMap(Definitions.latitude, Definitions.longitude);
 	}
 	
 	/**

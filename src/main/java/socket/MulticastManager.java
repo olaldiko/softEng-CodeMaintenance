@@ -8,14 +8,14 @@ import java.net.MulticastSocket;
 import data.Definitions;
 
 /**
- * Multicast
+ * MulticastManager
  * 
- * This class creates a Multicast socket to listen to a multicast group.
+ * This class creates a MulticastManager socket to listen to a multicast group.
  * 
  * @author Skynet Team
  *
  */
-public class Multicast extends Thread {
+public class MulticastManager extends Thread {
 	
 	Buzon<String> buzon;
 	
@@ -25,11 +25,11 @@ public class Multicast extends Thread {
 	boolean stop = false;
 	
 	/**
-	 * Multicast constructor receives a mailbox to place the alert messages.
+	 * MulticastManager constructor receives a mailbox to place the alert messages.
 	 * 
 	 * @param buzon Buzon buzon (mailbox)
 	 */
-	public Multicast(Buzon<String> buzon) {
+	public MulticastManager(Buzon<String> buzon) {
 		this.buzon = buzon;
 		init();
 	}
@@ -59,7 +59,7 @@ public class Multicast extends Thread {
 	}
 	
 	/**
-	 * This method joins the Multicast group.
+	 * This method joins the MulticastManager group.
 	 */
 	private void init() {
 		try {

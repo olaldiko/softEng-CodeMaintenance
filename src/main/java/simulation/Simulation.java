@@ -133,13 +133,13 @@ public class Simulation extends Thread {
 	 * @param Double longitude of the marker.
 	 */
 	private void updatePointer(double lat, double lng) {
-		double diffLat = lat - r.getLat();
-		double diffLng = lng - r.getLng();
+		double diffLat = lat - r.getLatitude();
+		double diffLng = lng - r.getLongitude();
 		double length = Math.sqrt((diffLat * diffLat) + (diffLng * diffLng)) * pasos;
 		int j = (int) length;
 		for (int i = 0; i < j; i++) {
-			double oLat = r.getLat() + (diffLat / j);
-			double oLng = r.getLng() + (diffLng / j);
+			double oLat = r.getLatitude() + (diffLat / j);
+			double oLng = r.getLongitude() + (diffLng / j);
 			r.setLocation(oLat, oLng);
 			ui.updatePointer(oLat, oLng);
 			if (stop) return;

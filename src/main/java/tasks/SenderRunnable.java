@@ -32,7 +32,7 @@ public class SenderRunnable extends Thread {
 				break;
 			default: System.out.println("SENDER RUNNABLE - ERROR: Tipo de mensaje no valido; tipo: "+type+".");
 		}
-		if ((r.getLat() != -1) && (r.getLng() != -1)) d.send(r.getID(), type, data);
+		if ((r.getLatitude() != -1) && (r.getLongitude() != -1)) d.send(r.getID(), type, data);
 	}
 
 }

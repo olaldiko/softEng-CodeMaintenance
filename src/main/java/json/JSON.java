@@ -67,9 +67,9 @@ public class JSON {
 				nav.setDistance_v(legs.getJSONObject("distance").getInt("value"));
 				nav.setDuration(legs.getJSONObject("duration").getString("text"));
 				nav.setDuration_v(legs.getJSONObject("duration").getInt("value"));
-				nav.setEnd_lat(legs.getJSONObject("end_location").getDouble("lat"));
-				nav.setEnd_lng(legs.getJSONObject("end_location").getDouble("lng"));
-				nav.setStart_lat(legs.getJSONObject("start_location").getDouble("lat"));
+				nav.setEnd_lat(legs.getJSONObject("end_location").getDouble("latitude"));
+				nav.setEnd_lng(legs.getJSONObject("end_location").getDouble("longitude"));
+				nav.setStart_lat(legs.getJSONObject("start_location").getDouble("latitude"));
 				JSONArray steps = legs.getJSONArray("steps");
 				for (int i = 0; i < steps.length(); i++) {
 					JSONObject tempStep = steps.getJSONObject(i);
@@ -78,10 +78,10 @@ public class JSON {
 					step.setDistance_v(tempStep.getJSONObject("distance").getInt("value"));
 					step.setDuration(tempStep.getJSONObject("duration").getString("text"));
 					step.setDuration_v(tempStep.getJSONObject("duration").getInt("value"));
-					step.setEnd_lat(tempStep.getJSONObject("end_location").getDouble("lat"));
-					step.setEnd_lng(tempStep.getJSONObject("end_location").getDouble("lng"));
-					step.setStart_lat(tempStep.getJSONObject("start_location").getDouble("lat"));
-					step.setStart_lng(tempStep.getJSONObject("start_location").getDouble("lng"));
+					step.setEnd_lat(tempStep.getJSONObject("end_location").getDouble("latitude"));
+					step.setEnd_lng(tempStep.getJSONObject("end_location").getDouble("longitude"));
+					step.setStart_lat(tempStep.getJSONObject("start_location").getDouble("latitude"));
+					step.setStart_lng(tempStep.getJSONObject("start_location").getDouble("longitude"));
 					step.setInstruction(tempStep.getString("html_instructions"));
 					step.setTravelMode(tempStep.getString("travel_mode"));
 					nav.addStep(step);
