@@ -71,18 +71,7 @@ public class JSON {
                 nav.setStart_lat(legs.getJSONObject("start_location").getDouble("latitude"));
                 JSONArray steps = legs.getJSONArray("steps");
                 for (int i = 0; i < steps.length(); i++) {
-                    JSONObject tempStep = steps.getJSONObject(i);
-                    Step step = new Step();
-                    step.setDistance(tempStep.getJSONObject("distance").getString("text"));
-                    step.setDistance_v(tempStep.getJSONObject("distance").getInt("value"));
-                    step.setDuration(tempStep.getJSONObject("duration").getString("text"));
-                    step.setDuration_v(tempStep.getJSONObject("duration").getInt("value"));
-                    step.setEnd_lat(tempStep.getJSONObject("end_location").getDouble("latitude"));
-                    step.setEnd_lng(tempStep.getJSONObject("end_location").getDouble("longitude"));
-                    step.setStart_lat(tempStep.getJSONObject("start_location").getDouble("latitude"));
-                    step.setStart_lng(tempStep.getJSONObject("start_location").getDouble("longitude"));
-                    step.setInstruction(tempStep.getString("html_instructions"));
-                    step.setTravelMode(tempStep.getString("travel_mode"));
+                    Step step = getStep(steps.getJSONObject(i));
                     nav.addStep(step);
                 }
             } else {
@@ -93,6 +82,21 @@ public class JSON {
             System.out.println("JSON - ERROR: JSON no válido.");
             return -1;
         }
+    }
+
+    public Step getStep(JSONObject jsonStep) {
+        Step step = new Step();
+        step.setDistance(jsonStep.getJSONObject("distance").getString("text"));
+        step.setDistance_v(jsonStep.getJSONObject("distance").getInt("value"));
+        step.setDuration(jsonStep.getJSONObject("duration").getString("text"));
+        step.setDuration_v(jsonStep.getJSONObject("duration").getInt("value"));
+        step.setEnd_lat(jsonStep.getJSONObject("end_location").getDouble("latitude"));
+        step.setEnd_lng(jsonStep.getJSONObject("end_location").getDouble("longitude"));
+        step.setStart_lat(jsonStep.getJSONObject("start_location").getDouble("latitude"));
+        step.setStart_lng(jsonStep.getJSONObject("start_location").getDouble("longitude"));
+        step.setInstruction(jsonStep.getString("html_instructions"));
+        step.setTravelMode(jsonStep.getString("travel_mode"));
+        return step;
     }
 
     /**
