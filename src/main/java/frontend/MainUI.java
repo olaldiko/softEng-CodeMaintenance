@@ -2,8 +2,6 @@ package frontend;
 
 import data.Definitions;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
@@ -24,13 +22,11 @@ import java.util.concurrent.Semaphore;
 public class MainUI extends Thread {
 
     private JFrame window;
-    private JTextArea alertArea;
     private JTextArea navArea;
-    private JScrollPane scrollAlert;
-    private JScrollPane scrollNav;
+    private JTextArea alertArea;
 
-    private JLabel lID, lEstado, lLat, lLng, lURL, lSocket;
-    private JLabel lDistanciaTotal, lDistanciaRest, lDuracionTotal, lDuracionRest;
+    private JLabel resourceIDLabel, resourceStatusLabel, latitudeLabel, longitudeLabel, serverAddressLabel, serverPortLabel;
+    private JLabel totalDistanceLabel, distanceLeftLabel, totalDurationLabel, durationLeftLabel;
 
     private WebEngine webEngine;
     private JFXPanel panel;
@@ -89,36 +85,56 @@ public class MainUI extends Thread {
      */
     private Container createNorthPanel() {
         JPanel panel = new JPanel(new GridLayout(1, 5, 0, 0));
-        JPanel panel1 = new JPanel(new BorderLayout());
-        panel1.setBorder(BorderFactory.createTitledBorder("ID del Recurso"));
-        lID = new JLabel("--", SwingConstants.CENTER);
-        panel1.add(lID);
-        JPanel panel2 = new JPanel(new BorderLayout());
-        panel2.setBorder(BorderFactory.createTitledBorder("Estado del Recurso"));
-        lEstado = new JLabel("--", SwingConstants.CENTER);
-        panel2.add(lEstado);
-        JPanel panel3 = new JPanel(new BorderLayout());
-        panel3.setBorder(BorderFactory.createTitledBorder("Localizacion del Recurso"));
-        lLat = new JLabel("--", SwingConstants.CENTER);
-        panel3.add(lLat, BorderLayout.NORTH);
-        lLng = new JLabel("--", SwingConstants.CENTER);
-        panel3.add(lLng, BorderLayout.CENTER);
-        JPanel panel4 = new JPanel(new BorderLayout());
-        panel4.setBorder(BorderFactory.createTitledBorder("IP del Servidor"));
-        lURL = new JLabel("--", SwingConstants.CENTER);
-        panel4.add(lURL);
-        JPanel panel5 = new JPanel(new BorderLayout());
-        panel5.setBorder(BorderFactory.createTitledBorder("Nº de Puerto"));
-        lSocket = new JLabel("--", SwingConstants.CENTER);
-        panel5.add(lSocket);
-        panel.add(panel1);
-        panel.add(panel2);
-        panel.add(panel3);
-        panel.add(panel4);
-        panel.add(panel5);
+
+        panel.add(createResourceIDPanel());
+        panel.add(createResourceStatusPanel());
+        panel.add(createResourceLocationPanel());
+        panel.add(createServerAddressPanel());
+        panel.add(createServerPortPanel());
         return panel;
     }
 
+    private Container createResourceIDPanel() {
+        JPanel resourceIDPanel = new JPanel(new BorderLayout());
+        resourceIDPanel.setBorder(BorderFactory.createTitledBorder("ID del Recurso"));
+        resourceIDLabel = new JLabel("--", SwingConstants.CENTER);
+        resourceIDPanel.add(resourceIDLabel);
+        return resourceIDPanel;
+    }
+
+    private Container createResourceStatusPanel() {
+        JPanel resourceStatusPanel = new JPanel(new BorderLayout());
+        resourceStatusPanel.setBorder(BorderFactory.createTitledBorder("Estado del Recurso"));
+        resourceStatusLabel = new JLabel("--", SwingConstants.CENTER);
+        resourceStatusPanel.add(resourceStatusLabel);
+        return resourceStatusPanel;
+    }
+
+    private Container createResourceLocationPanel() {
+        JPanel resourceLocationPanel = new JPanel(new BorderLayout());
+        resourceLocationPanel.setBorder(BorderFactory.createTitledBorder("Localizacion del Recurso"));
+        latitudeLabel = new JLabel("--", SwingConstants.CENTER);
+        resourceLocationPanel.add(latitudeLabel, BorderLayout.NORTH);
+        longitudeLabel = new JLabel("--", SwingConstants.CENTER);
+        resourceLocationPanel.add(longitudeLabel, BorderLayout.CENTER);
+        return resourceLocationPanel;
+    }
+
+    private Container createServerAddressPanel() {
+        JPanel serverAddressPanel = new JPanel(new BorderLayout());
+        serverAddressPanel.setBorder(BorderFactory.createTitledBorder("IP del Servidor"));
+        serverAddressLabel = new JLabel("--", SwingConstants.CENTER);
+        serverAddressPanel.add(serverAddressLabel);
+        return serverAddressPanel;
+    }
+
+    private Container createServerPortPanel() {
+        JPanel serverPortPanel = new JPanel(new BorderLayout());
+        serverPortPanel.setBorder(BorderFactory.createTitledBorder("Nº de Puerto"));
+        serverPortLabel = new JLabel("--", SwingConstants.CENTER);
+        serverPortPanel.add(serverPortLabel);
+        return serverPortPanel;
+    }
     /**
      * South panel fills the panel (GridLayout) with a combination of panels to show alert and route information.
      *
@@ -126,41 +142,69 @@ public class MainUI extends Thread {
      */
     private Container createSouthPanel() {
         JPanel panel = new JPanel(new GridLayout(1, 2, 0, 0));
-        JPanel panel1 = new JPanel(new BorderLayout());
-        panel1.setBorder(BorderFactory.createTitledBorder("Mensajes de alerta"));
-        alertArea = new JTextArea(12, 20);
-        scrollAlert = new JScrollPane(alertArea);
-        alertArea.setEditable(false);
-        panel1.add(scrollAlert);
-        JPanel panel2 = new JPanel(new BorderLayout());
-        panel2.setBorder(BorderFactory.createTitledBorder("Navegador"));
-        navArea = new JTextArea(12, 20);
-        scrollNav = new JScrollPane(navArea);
-        navArea.setEditable(false);
-        JPanel panel21 = new JPanel(new GridLayout(1, 4, 0, 0));
-        JPanel panel211 = new JPanel(new BorderLayout());
-        JPanel panel212 = new JPanel(new BorderLayout());
-        JPanel panel213 = new JPanel(new BorderLayout());
-        JPanel panel214 = new JPanel(new BorderLayout());
-        panel211.setBorder(BorderFactory.createTitledBorder("Distancia total"));
-        panel211.add(lDistanciaTotal = new JLabel("--", SwingConstants.CENTER));
-        panel212.setBorder(BorderFactory.createTitledBorder("Distancia restante"));
-        panel212.add(lDistanciaRest = new JLabel("--", SwingConstants.CENTER));
-        panel213.setBorder(BorderFactory.createTitledBorder("Duracion total"));
-        panel213.add(lDuracionTotal = new JLabel("--", SwingConstants.CENTER));
-        panel214.setBorder(BorderFactory.createTitledBorder("Duracion restante"));
-        panel214.add(lDuracionRest = new JLabel("--", SwingConstants.CENTER));
-        panel21.add(panel211);
-        panel21.add(panel212);
-        panel21.add(panel213);
-        panel21.add(panel214);
-        panel2.add(panel21, BorderLayout.NORTH);
-        panel2.add(scrollNav);
-        panel.add(panel1);
-        panel.add(panel2);
+        panel.add(createAlertPanel());
+        panel.add(createNavigationPanel());
         return panel;
     }
 
+    private Container createAlertPanel() {
+        JPanel alertPanel = new JPanel(new BorderLayout());
+        alertPanel.setBorder(BorderFactory.createTitledBorder("Mensajes de alerta"));
+        JScrollPane alertScrollPanel = new JScrollPane();
+        alertArea = new JTextArea(12, 20);
+        alertArea.setEditable(false);
+        alertScrollPanel.add(alertArea);
+        return alertPanel;
+    }
+
+    private Container createNavigationPanel() {
+        JScrollPane scrollNav;
+        JPanel navigationPanel = new JPanel(new BorderLayout());
+        navigationPanel.setBorder(BorderFactory.createTitledBorder("Navegador"));
+        navArea = new JTextArea(12, 20);
+        scrollNav = new JScrollPane(navArea);
+        navArea.setEditable(false);
+        navigationPanel.add(createDataPanel(), BorderLayout.NORTH);
+        navigationPanel.add(scrollNav);
+        return navigationPanel;
+    }
+
+    private Container createTotalDistancePanel() {
+        JPanel totalDistancePanel = new JPanel(new BorderLayout());
+        totalDistancePanel.setBorder(BorderFactory.createTitledBorder("Distancia total"));
+        totalDistancePanel.add(totalDistanceLabel = new JLabel("--", SwingConstants.CENTER));
+        return totalDistancePanel;
+    }
+
+    private Container createTotalDurationPanel() {
+        JPanel totalDurationPanel = new JPanel(new BorderLayout());
+        totalDurationPanel.setBorder(BorderFactory.createTitledBorder("Duracion total"));
+        totalDurationPanel.add(totalDurationLabel = new JLabel("--", SwingConstants.CENTER));
+        return totalDurationPanel;
+    }
+
+    private Container createRemainingDistancePanel() {
+        JPanel remainingDistancePanel = new JPanel(new BorderLayout());
+        remainingDistancePanel.setBorder(BorderFactory.createTitledBorder("Distancia restante"));
+        remainingDistancePanel.add(distanceLeftLabel = new JLabel("--", SwingConstants.CENTER));
+        return remainingDistancePanel;
+    }
+
+    private Container createRemainingDurationPanel() {
+        JPanel remainingDurationPanel = new JPanel(new BorderLayout());
+        remainingDurationPanel.setBorder(BorderFactory.createTitledBorder("Duracion restante"));
+        remainingDurationPanel.add(durationLeftLabel = new JLabel("--", SwingConstants.CENTER));
+        return remainingDurationPanel;
+    }
+
+    private Container createDataPanel() {
+        JPanel dataPanel = new JPanel(new GridLayout(1, 4, 0, 0));
+        dataPanel.add(createTotalDistancePanel());
+        dataPanel.add(createRemainingDistancePanel());
+        dataPanel.add(createTotalDurationPanel());
+        dataPanel.add(createRemainingDurationPanel());
+        return dataPanel;
+    }
     /**
      * This method creates the JFXPanel to show the WebView.
      *
@@ -175,15 +219,10 @@ public class MainUI extends Thread {
      * Creating the Scene means to create and set the WebView into the JFXPanel.
      */
     private void createScene() {
-        Platform.runLater(new Runnable() {
-
-            @Override
-            public void run() {
-                WebView webView = new WebView();
-                webEngine = webView.getEngine();
-                panel.setScene(new Scene(webView));
-            }
-
+        Platform.runLater(() -> {
+            WebView webView = new WebView();
+            webEngine = webView.getEngine();
+            panel.setScene(new Scene(webView));
         });
     }
 
@@ -211,22 +250,14 @@ public class MainUI extends Thread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Platform.runLater(new Runnable() {
-
-            @Override
-            public void run() {
-                webEngine.load(mapURL);
-                webEngine.getLoadWorker().progressProperty().addListener(new ChangeListener<Number>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
-                        if (arg2.equals(1.0)) {
-                            stop.release();
-                            loaded = true;
-                        }
-                    }
-                });
-            }
-
+        Platform.runLater(() -> {
+            webEngine.load(mapURL);
+            webEngine.getLoadWorker().progressProperty().addListener((arg0, arg1, arg2) -> {
+                if (arg2.equals(1.0)) {
+                    stop.release();
+                    loaded = true;
+                }
+            });
         });
         candado.release();
     }
@@ -317,14 +348,14 @@ public class MainUI extends Thread {
     }
 
     /**
-     * This method cclears the navigation text area.
+     * This method clears the navigation text area.
      */
     public void clearNavText() {
         navArea.setText("");
     }
 
     public void setID(int id) {
-        lID.setText(String.valueOf(id));
+        resourceIDLabel.setText(String.valueOf(id));
     }
 
     /**
@@ -334,51 +365,51 @@ public class MainUI extends Thread {
      */
     public void setEstado(int estado) {
         if (estado == 0) {
-            lEstado.setText("LIBRE");
+            resourceStatusLabel.setText("LIBRE");
         } else if (estado == 1) {
-            lEstado.setText("VIAJE IDA");
+            resourceStatusLabel.setText("VIAJE IDA");
         } else if (estado == 2) {
-            lEstado.setText("VIAJE VUELTA");
+            resourceStatusLabel.setText("VIAJE VUELTA");
         }
     }
 
     public void setLocation(double lat, double lng) {
-        lLat.setText("LAT: " + lat);
-        lLng.setText("LNG: " + lng);
+        latitudeLabel.setText("LAT: " + lat);
+        longitudeLabel.setText("LNG: " + lng);
     }
 
     public void setURL(String url) {
-        lURL.setText(url);
+        serverAddressLabel.setText(url);
     }
 
     public void setSocket(int socket) {
-        lSocket.setText(String.valueOf(socket));
+        serverPortLabel.setText(String.valueOf(socket));
     }
 
     /**
      * Resets all the JLabels at the north panel.
      */
     public void resetNav() {
-        lDuracionTotal.setText("--");
-        lDuracionRest.setText("--");
-        lDistanciaTotal.setText("--");
-        lDistanciaRest.setText("--");
+        totalDurationLabel.setText("--");
+        durationLeftLabel.setText("--");
+        totalDistanceLabel.setText("--");
+        distanceLeftLabel.setText("--");
     }
 
     public void setDuracionTotal(String text) {
-        lDuracionTotal.setText(text);
+        totalDurationLabel.setText(text);
     }
 
     public void setDuracionRest(String text) {
-        lDuracionRest.setText(text);
+        durationLeftLabel.setText(text);
     }
 
     public void setDistanciaTotal(String text) {
-        lDistanciaTotal.setText(text);
+        totalDistanceLabel.setText(text);
     }
 
     public void setDistanciaRest(String text) {
-        lDistanciaRest.setText(text);
+        distanceLeftLabel.setText(text);
     }
 
 }

@@ -30,13 +30,14 @@ public class Dispatcher extends Thread {
 
     private DebuggingUI dUI;
 
+    final int MAILBOX_SIZE = 1000;
     /**
      * Dispatcher constructor creates the mailboxes.
      */
     public Dispatcher() {
-        receiverBuzon = new Buzon<>(1000);
-        senderBuzon = new Buzon<>(1000);
-        parserBuzon = new Buzon<>(1000);
+        receiverBuzon = new Buzon<>(MAILBOX_SIZE);
+        senderBuzon = new Buzon<>(MAILBOX_SIZE);
+        parserBuzon = new Buzon<>(MAILBOX_SIZE);
         dUI = new DebuggingUI("Dispatcher");
     }
 

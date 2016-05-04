@@ -20,7 +20,7 @@ public class Simulation extends Thread {
     private static final int refreshRate = 500;
     private MainUI ui;
     private Buzon<String> buzon;
-    private Resource r;
+    private Resource resource;
     private Navigation nav;
     private ArrayList<Step> steps;
     private boolean stop = false;
@@ -32,12 +32,12 @@ public class Simulation extends Thread {
      *
      * @param ui    MainUI ui is needed to print the route in the UI.
      * @param buzon Buzon buzon (mailbox) is needed to listen for new routes.
-     * @param r     Resource r is needed to change the location and state of the resource.
+     * @param resource     Resource resource is needed to change the location and state of the resource.
      */
-    public Simulation(MainUI ui, Buzon<String> buzon, Resource r) {
+    public Simulation(MainUI ui, Buzon<String> buzon, Resource resource) {
         this.ui = ui;
         this.buzon = buzon;
-        this.r = r;
+        this.resource = resource;
     }
 
     /**
@@ -60,15 +60,15 @@ public class Simulation extends Thread {
                 e.printStackTrace();
             }
             if (result < 0) {
-                r.setEstado(0);
+                resource.setEstado(0);
             } else {
                 driving = true;
                 nav = json.getNav();
                 steps = nav.getSteps();
-                if (r.getEstado() == 0) {
-                    r.setEstado(1);
+                if (resource.getEstado() == 0) {
+                    resource.setEstado(1);
                     ui.addNavText("Ruta (ida) recibida, leyendo resumen de ruta.");
-                } else if (r.getEstado() == 2) {
+                } else if (resource.getEstado() == 2) {
                     ui.addNavText("Ruta (vuelta) recibida, leyendo resumen de ruta.");
                 }
                 ui.setDistanciaTotal(nav.getDistance());
@@ -84,19 +84,19 @@ public class Simulation extends Thread {
                     ui.setDistanciaRest(String.valueOf((steps.get(i).getDistance_v() * 0.001)) + " km");
                     ui.setDuracionRest(secondsToString(steps.get(i).getDuration_v()));
                     if (stop) {
-                        if (r.getEstado() == 1) {
-                            r.setEstado(0);
+                        if (resource.getEstado() == 1) {
+                            resource.setEstado(0);
                             ui.clearNavText();
                             ui.addNavText("Ruta cancelada, nueva ruta recibida.");
                             return;
                         }
                     }
                 }
-                if (r.getEstado() != 2) {
-                    r.setEstado(2);
+                if (resource.getEstado() != 2) {
+                    resource.setEstado(2);
                     ui.addNavText("Incidente atendido, esperando ruta de vuelta.");
                 } else {
-                    r.setEstado(0);
+                    resource.setEstado(0);
                     ui.addNavText("Ruta de vuelta finalizada.");
                     sleep(1000);
                     ui.clearNavText();
@@ -118,7 +118,7 @@ public class Simulation extends Thread {
      * @param Double longitude of the marker.
      */
     private void addPointer(double lat, double lng) {
-        r.setLocation(lat, lng);
+        resource.setLocation(lat, lng);
         ui.addPointer(lat, lng);
     }
 
@@ -130,14 +130,14 @@ public class Simulation extends Thread {
      * @param Double longitude of the marker.
      */
     private void updatePointer(double lat, double lng) {
-        double diffLat = lat - r.getLatitude();
-        double diffLng = lng - r.getLongitude();
+        double diffLat = lat - resource.getLatitude();
+        double diffLng = lng - resource.getLongitude();
         double length = Math.sqrt((diffLat * diffLat) + (diffLng * diffLng)) * pasos;
         int j = (int) length;
         for (int i = 0; i < j; i++) {
-            double oLat = r.getLatitude() + (diffLat / j);
-            double oLng = r.getLongitude() + (diffLng / j);
-            r.setLocation(oLat, oLng);
+            double oLat = resource.getLatitude() + (diffLat / j);
+            double oLng = resource.getLongitude() + (diffLng / j);
+            resource.setLocation(oLat, oLng);
             ui.updatePointer(oLat, oLng);
             if (stop) return;
             sleep(refreshRate);
