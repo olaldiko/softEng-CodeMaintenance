@@ -36,12 +36,14 @@ public class Resource extends Thread {
 
     private volatile boolean stop = false;
 
+    private final int MAILBOX_SIZE = 1000;
+
     public Resource(Dispatcher dispatcher) {
         this.dispatcher = dispatcher;
         init();
         mainUI = new MainUI();
         mainUI.start();
-        simuBuzon = new Buzon<>(1000);
+        simuBuzon = new Buzon<>(MAILBOX_SIZE);
         prepareSimulator();
         initSimulator();
     }
@@ -89,13 +91,11 @@ public class Resource extends Thread {
     }
 
     private void treatRouteMesasge(Message msg) {
-        if (simulation != null) {
-            if (simulation.getDriving()) {
+        if (simulation != null && simulation.getDriving()) {
                 mainUI.reload();
                 killSimulator();
                 prepareSimulator();
                 initSimulator();
-            }
         }
         try {
             simuBuzon.send(msg.getData());
@@ -110,10 +110,8 @@ public class Resource extends Thread {
 
     private void treatJoinMessage(Message msg) {
         Definitions.multicastGroup = msg.getData();
-        if (multicastManager != null) {
-            if (multicastManager.isAlive()) {
+        if (multicastManager != null && multicastManager.isAlive()) {
                 multicastManager.close();
-            }
         }
         multicastManager = new MulticastManager(dispatcher.getParserBuzon());
         multicastManager.start();
